@@ -1,0 +1,35 @@
+name: dput ppa:jcbhmr/ppa
+on:
+  release:
+    types: released
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+concurrency: ${{ github.workflow }}
+jobs:
+  dput-ppa:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh release download "$TAG" --pattern '*.deb'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.event.inputs.tag_name || github.event.release.tag_name}}
+      - run: |
+          echo "$GPG_SECRET" | base64 --decode | gpg --import
+          gpg --batch --passphrase "$GPG_PASSPHRASE" --pinentry-mode loopback --detach-sign -a *.deb
+        env:
+          GPG_SECRET: ${{ secrets.GPG_SECRET }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - run: |
+          sudo add-apt-repository ppa:jcbhmr/ppa -y
+          sudo apt-get update -y
+          sudo apt-get install dput -y
+          dput ppa:jcbhmr/ppa *.changes
+        env:
+          DEBFULLNAME: ${{ vars.DEBFULLNAME }}
+          DEBEMAIL: ${{ vars.DEBEMAIL }}
+          GPG_KEY_ID: ${{ vars.GPG_KEY_ID }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          GPG_SECRET: ${{ secrets.GPG_SECRET }}

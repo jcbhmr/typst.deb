@@ -1,0 +1,4 @@
+[submodule "typst"]
+	path = typst
+	url = https://github.com/typst/typst.git
+	branch = v0.10.0

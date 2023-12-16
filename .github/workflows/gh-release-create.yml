@@ -17,6 +17,8 @@ jobs:
         run: |
           latest_tag=$(gh api repos/typst/typst/releases --jq .[0].tag_name)
           echo "latest-tag=$latest_tag" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v4
         with:
           repository: typst/typst

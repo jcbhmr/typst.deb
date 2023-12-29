@@ -27,9 +27,12 @@ jobs:
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
       - run: cargo binstall cargo-deb -y
       - run: cargo deb --package typst-cli
-      - run: gh release create "$TAG" --generate-notes target/debian/*.deb
+      - run: git push origin ${{ steps.get-latest-tag.outputs.latest-tag}
+- run: gh release create "$TAG" --generate-notes target/debian/*.deb
         env:
           # Use a PAT so "on: release" gets triggered.
           GH_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ steps.get-latest-tag.outputs.latest-tag }}
+  GITHUB_REF: ${{ steps.get-latest-tag.outputs.latest-tag }}
+  GITHUB_REF: ${{ steps.get-latest-tag.outputs.latest-tag }}
